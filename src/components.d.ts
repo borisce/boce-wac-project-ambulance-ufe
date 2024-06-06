@@ -6,56 +6,127 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
-    interface MyComponent {
-        /**
-          * The first name
-         */
-        "first": string;
-        /**
-          * The last name
-         */
-        "last": string;
-        /**
-          * The middle name
-         */
-        "middle": string;
+    interface BoceWacProjectAppointmentData {
+        "patient": any;
+    }
+    interface BoceWacProjectCreatePatient {
+        "entryId": string;
+    }
+    interface BoceWacProjectCreateTerm {
+    }
+    interface BoceWacProjectDoctorPatientsList {
+    }
+    interface BoceWacProjectLogin {
+    }
+    interface BoceWacProjectMyAppointments {
+    }
+    interface BoceWacProjectPlannedAppointments {
+    }
+    interface BoceWacProjectReserveAppointment {
     }
 }
 declare global {
-    interface HTMLMyComponentElement extends Components.MyComponent, HTMLStencilElement {
+    interface HTMLBoceWacProjectAppointmentDataElement extends Components.BoceWacProjectAppointmentData, HTMLStencilElement {
     }
-    var HTMLMyComponentElement: {
-        prototype: HTMLMyComponentElement;
-        new (): HTMLMyComponentElement;
+    var HTMLBoceWacProjectAppointmentDataElement: {
+        prototype: HTMLBoceWacProjectAppointmentDataElement;
+        new (): HTMLBoceWacProjectAppointmentDataElement;
+    };
+    interface HTMLBoceWacProjectCreatePatientElement extends Components.BoceWacProjectCreatePatient, HTMLStencilElement {
+    }
+    var HTMLBoceWacProjectCreatePatientElement: {
+        prototype: HTMLBoceWacProjectCreatePatientElement;
+        new (): HTMLBoceWacProjectCreatePatientElement;
+    };
+    interface HTMLBoceWacProjectCreateTermElement extends Components.BoceWacProjectCreateTerm, HTMLStencilElement {
+    }
+    var HTMLBoceWacProjectCreateTermElement: {
+        prototype: HTMLBoceWacProjectCreateTermElement;
+        new (): HTMLBoceWacProjectCreateTermElement;
+    };
+    interface HTMLBoceWacProjectDoctorPatientsListElement extends Components.BoceWacProjectDoctorPatientsList, HTMLStencilElement {
+    }
+    var HTMLBoceWacProjectDoctorPatientsListElement: {
+        prototype: HTMLBoceWacProjectDoctorPatientsListElement;
+        new (): HTMLBoceWacProjectDoctorPatientsListElement;
+    };
+    interface HTMLBoceWacProjectLoginElement extends Components.BoceWacProjectLogin, HTMLStencilElement {
+    }
+    var HTMLBoceWacProjectLoginElement: {
+        prototype: HTMLBoceWacProjectLoginElement;
+        new (): HTMLBoceWacProjectLoginElement;
+    };
+    interface HTMLBoceWacProjectMyAppointmentsElement extends Components.BoceWacProjectMyAppointments, HTMLStencilElement {
+    }
+    var HTMLBoceWacProjectMyAppointmentsElement: {
+        prototype: HTMLBoceWacProjectMyAppointmentsElement;
+        new (): HTMLBoceWacProjectMyAppointmentsElement;
+    };
+    interface HTMLBoceWacProjectPlannedAppointmentsElement extends Components.BoceWacProjectPlannedAppointments, HTMLStencilElement {
+    }
+    var HTMLBoceWacProjectPlannedAppointmentsElement: {
+        prototype: HTMLBoceWacProjectPlannedAppointmentsElement;
+        new (): HTMLBoceWacProjectPlannedAppointmentsElement;
+    };
+    interface HTMLBoceWacProjectReserveAppointmentElement extends Components.BoceWacProjectReserveAppointment, HTMLStencilElement {
+    }
+    var HTMLBoceWacProjectReserveAppointmentElement: {
+        prototype: HTMLBoceWacProjectReserveAppointmentElement;
+        new (): HTMLBoceWacProjectReserveAppointmentElement;
     };
     interface HTMLElementTagNameMap {
-        "my-component": HTMLMyComponentElement;
+        "boce-wac-project-appointment-data": HTMLBoceWacProjectAppointmentDataElement;
+        "boce-wac-project-create-patient": HTMLBoceWacProjectCreatePatientElement;
+        "boce-wac-project-create-term": HTMLBoceWacProjectCreateTermElement;
+        "boce-wac-project-doctor-patients-list": HTMLBoceWacProjectDoctorPatientsListElement;
+        "boce-wac-project-login": HTMLBoceWacProjectLoginElement;
+        "boce-wac-project-my-appointments": HTMLBoceWacProjectMyAppointmentsElement;
+        "boce-wac-project-planned-appointments": HTMLBoceWacProjectPlannedAppointmentsElement;
+        "boce-wac-project-reserve-appointment": HTMLBoceWacProjectReserveAppointmentElement;
     }
 }
 declare namespace LocalJSX {
-    interface MyComponent {
-        /**
-          * The first name
-         */
-        "first"?: string;
-        /**
-          * The last name
-         */
-        "last"?: string;
-        /**
-          * The middle name
-         */
-        "middle"?: string;
+    interface BoceWacProjectAppointmentData {
+        "patient"?: any;
+    }
+    interface BoceWacProjectCreatePatient {
+        "entryId"?: string;
+    }
+    interface BoceWacProjectCreateTerm {
+    }
+    interface BoceWacProjectDoctorPatientsList {
+    }
+    interface BoceWacProjectLogin {
+    }
+    interface BoceWacProjectMyAppointments {
+    }
+    interface BoceWacProjectPlannedAppointments {
+    }
+    interface BoceWacProjectReserveAppointment {
     }
     interface IntrinsicElements {
-        "my-component": MyComponent;
+        "boce-wac-project-appointment-data": BoceWacProjectAppointmentData;
+        "boce-wac-project-create-patient": BoceWacProjectCreatePatient;
+        "boce-wac-project-create-term": BoceWacProjectCreateTerm;
+        "boce-wac-project-doctor-patients-list": BoceWacProjectDoctorPatientsList;
+        "boce-wac-project-login": BoceWacProjectLogin;
+        "boce-wac-project-my-appointments": BoceWacProjectMyAppointments;
+        "boce-wac-project-planned-appointments": BoceWacProjectPlannedAppointments;
+        "boce-wac-project-reserve-appointment": BoceWacProjectReserveAppointment;
     }
 }
 export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "my-component": LocalJSX.MyComponent & JSXBase.HTMLAttributes<HTMLMyComponentElement>;
+            "boce-wac-project-appointment-data": LocalJSX.BoceWacProjectAppointmentData & JSXBase.HTMLAttributes<HTMLBoceWacProjectAppointmentDataElement>;
+            "boce-wac-project-create-patient": LocalJSX.BoceWacProjectCreatePatient & JSXBase.HTMLAttributes<HTMLBoceWacProjectCreatePatientElement>;
+            "boce-wac-project-create-term": LocalJSX.BoceWacProjectCreateTerm & JSXBase.HTMLAttributes<HTMLBoceWacProjectCreateTermElement>;
+            "boce-wac-project-doctor-patients-list": LocalJSX.BoceWacProjectDoctorPatientsList & JSXBase.HTMLAttributes<HTMLBoceWacProjectDoctorPatientsListElement>;
+            "boce-wac-project-login": LocalJSX.BoceWacProjectLogin & JSXBase.HTMLAttributes<HTMLBoceWacProjectLoginElement>;
+            "boce-wac-project-my-appointments": LocalJSX.BoceWacProjectMyAppointments & JSXBase.HTMLAttributes<HTMLBoceWacProjectMyAppointmentsElement>;
+            "boce-wac-project-planned-appointments": LocalJSX.BoceWacProjectPlannedAppointments & JSXBase.HTMLAttributes<HTMLBoceWacProjectPlannedAppointmentsElement>;
+            "boce-wac-project-reserve-appointment": LocalJSX.BoceWacProjectReserveAppointment & JSXBase.HTMLAttributes<HTMLBoceWacProjectReserveAppointmentElement>;
         }
     }
 }

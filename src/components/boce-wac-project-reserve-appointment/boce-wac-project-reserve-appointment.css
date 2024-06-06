@@ -1,0 +1,59 @@
+:host {
+}
+
+header{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.component-body{
+  margin: 2% auto;
+}
+
+h1{
+  text-align: center;
+  text-align: center;
+  color: #333;
+  font-size: 24px;
+}
+
+.headerinline {
+  display: inline-block;
+}
+
+.filterflex {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  /*background-color: green;
+  border: 1px solid #333;
+  border-radius: 4px;*/
+  padding: 0.2%;
+  width: 90%;
+  margin: 0 auto;
+  margin-bottom: 1%;
+}
+
+.datepickerflex {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 22%;
+}
+
+
+.back-flex {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.patient-item{
+  border-bottom: 1px solid #333;
+}
+
+.patient-list{
+  padding: 0;
+  margin-bottom: 1%;
+}

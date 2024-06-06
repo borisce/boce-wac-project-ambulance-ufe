@@ -1,0 +1,52 @@
+:host {
+}
+
+.component-body{
+  margin: 2% auto;
+}
+
+h1{
+  text-align: center;
+  text-align: center;
+  color: #333;
+  font-size: 24px;
+}
+
+header{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+h3{
+  text-align: center;
+  text-align: center;
+  color: #333;
+  font-size: 16px;
+}
+
+.headerinline {
+  display: inline-block;
+}
+
+.form-flex {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1em;
+  /*background-color: green;
+  border: 1px solid #333;
+  border-radius: 4px;*/
+  padding: 0.2%;
+  width: 30%;
+  margin: 0 auto;
+  margin-bottom: 1%;
+}
+
+.button-flex {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.5em;
+}

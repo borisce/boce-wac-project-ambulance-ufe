@@ -1,0 +1,45 @@
+:host {
+}
+
+header{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.component-body{
+  margin: 2% auto;
+  width: 90%;
+}
+
+h1{
+  text-align: center;
+  text-align: center;
+  color: #333;
+  font-size: 24px;
+
+}
+
+
+.data-flex {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0.2%;
+  margin: 0 auto;
+  margin-bottom: 1%;
+}
+
+textarea{
+  margin-top: 1%;
+}
+
+.patient-flex p{
+  display: inline-block;
+}
+
+.buttons-flex, .patient-flex{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
