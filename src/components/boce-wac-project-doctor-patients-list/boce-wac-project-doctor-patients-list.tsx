@@ -19,7 +19,7 @@ export class BoceWacProjectDoctorPatientsList {
   private async getWaitingPatientsAsync() {
     return await Promise.resolve(
       [{
-        name: 'Jožko Púčik',
+        name: 'Jožko Púčikk',
         Id: '1',
         date: new Date("2024-04-01"),
         estimatedStart: "11:00",
