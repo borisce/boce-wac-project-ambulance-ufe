@@ -1,4 +1,5 @@
-import { Component, State, Host, h } from '@stencil/core';
+import { Component, State, Host, h, Prop } from '@stencil/core';
+import { AppointmentsListApiFactory, AppointmentsList} from '../../api/boce-wac-project-ambulance-wl';
 
 @Component({
   tag: 'boce-wac-project-my-appointments',
@@ -9,41 +10,37 @@ export class BoceWacProjectMyAppointments {
   @State() isLoggedOut: boolean = false;
   @State() isPlannedClicked: boolean = false;
   @State() isAvailableClicked: boolean = false;
-  @State() searchQuery: string = ''; // State to hold the search query
-  @State() searchDate: string = ''; // State to hold the search date
-  @State() filteredPatients: any[] = []; // State to hold the filtered patients
-  waitingPatients: any[];
-  private async getWaitingPatientsAsync() {
-    return await Promise.resolve(
-      [{
-        name: 'Jožko Púčik',
-        Id: '1',
-        date: new Date("2024-04-01"),
-        estimatedStart: "11:00",
-        estimatedEnd: "11:20",
-        condition: 'Kontrola',
-        doctorNote: "",
-      }, {
-        name: 'Bc. August Cézar',
-        Id: '2',
-        date: new Date("2024-04-01"),
-        estimatedStart: "11:40",
-        estimatedEnd: "12:00",
-        condition: 'Teploty',
-        doctorNote: "",
-      }, {
-        name: 'Ing. Ferdinand Trety',
-        Id: '3',
-        date: new Date("2024-04-03"),
-        estimatedStart: "10:00",
-        estimatedEnd: "10:20",
-        condition: 'Bolesti hrdla',
-        doctorNote: "",
-      }]
-    );
+  @State() searchQuery: string = ''; 
+  @State() searchDate: string = ''; 
+  @State() filteredPatients: AppointmentsList[] = []; 
+  @Prop() apiBase: string;
+  @Prop() ambulanceId: string;
+  @State() errorMessage: string;
+  waitingPatients: AppointmentsList[];
+  private async getAppointmentsListAsync() {
+    try {
+      const response = await
+        AppointmentsListApiFactory(undefined, this.apiBase).
+          getAppointmentsList()
+      if (response.status < 299) {
+        return response.data;
+      } else {
+        this.errorMessage = `Cannot retrieve list of appointments: ${response.statusText}`
+      }
+    } catch (err: any) {
+      this.errorMessage = `Cannot retrieve list of appointments: ${err.message || "unknown"}`
+    }
+    return [];
   }
   async componentWillLoad() {
-    this.waitingPatients = await this.getWaitingPatientsAsync();
+    this.waitingPatients = await this.getAppointmentsListAsync();
+
+    const today = new Date().toISOString().split("T")[0];
+
+    // Filter appointments to include only those with dates today or older
+    this.waitingPatients = this.waitingPatients.filter(appointment => {
+    return appointment.date <= today;
+  });
   }
   private formatDate(date: Date): string {
     return new Intl.DateTimeFormat('sk-SK', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
@@ -85,17 +82,17 @@ export class BoceWacProjectMyAppointments {
   render() {
     if (this.isLoggedOut) {
       return (
-        <boce-wac-project-login></boce-wac-project-login>
+        <boce-wac-project-login api-base={this.apiBase}></boce-wac-project-login>
       );
     }
     if (this.isPlannedClicked) {
       return (
-        <boce-wac-project-planned-appointments></boce-wac-project-planned-appointments>
+        <boce-wac-project-planned-appointments api-base={this.apiBase}></boce-wac-project-planned-appointments>
       );
     }
     if (this.isAvailableClicked) {
       return (
-        <boce-wac-project-reserve-appointment></boce-wac-project-reserve-appointment>
+        <boce-wac-project-reserve-appointment api-base={this.apiBase}></boce-wac-project-reserve-appointment>
       );
     }
     return (
@@ -117,14 +114,19 @@ export class BoceWacProjectMyAppointments {
             </div>
             <div class="datepickerflex">
               <p class='headerinline'>Vyberte deň:</p>
-              <input type="date" id="Test_DatetimeLocal" value={this.searchDate} onInput={(event) => this.handleDateChange(event)} />
+              <input type="date" id="Test_DatetimeLocal" value={this.searchDate} max={new Date().toISOString().split("T")[0]} onInput={(event) => this.handleDateChange(event)} />
             </div>
             <md-elevated-button onClick={(event) => this.handlePlannedClick(event)}>Zobraz plánované vyšetrenia</md-elevated-button>
           </div>
+          {this.errorMessage
+        ? <div class="error">{this.errorMessage}</div>
+        :(
+          <div>
           <md-list class="patient-list">
             {this.searchQuery.trim() === '' ? (
               <p>Zadajte meno pacienta do vyhľadávacieho poľa.</p>
-            ) : this.filteredPatients.length > 0 ? (
+            ) : 
+            this.filteredPatients.length > 0 ? (
               this.filteredPatients.map(patient =>
                 <md-list-item>
                   <div slot="headline">{patient.name}</div>
@@ -138,6 +140,7 @@ export class BoceWacProjectMyAppointments {
               <p>Nenašli sa žiadne záznamy pre zadané meno a dátum.</p>
             )}
           </md-list>
+          </div>)} 
           <div class="add-term">
             <md-elevated-button onClick={(event) => this.handleAvailableClick(event)}>Objednanie sa na termín vyšetrenia</md-elevated-button>
           </div>

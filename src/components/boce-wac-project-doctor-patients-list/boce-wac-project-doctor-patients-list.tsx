@@ -1,4 +1,5 @@
-import { State, Component, Host, h } from '@stencil/core';
+import { State, Component, Host, h, Prop } from '@stencil/core';
+import { AppointmentsListApiFactory, AppointmentsList} from '../../api/boce-wac-project-ambulance-wl';
 
 @Component({
   tag: 'boce-wac-project-doctor-patients-list',
@@ -13,43 +14,36 @@ export class BoceWacProjectDoctorPatientsList {
   @State() editingEntryIndex: number | null = null;
   @State() searchQuery: string = '';
   @State() searchDate: string = '';
-  @State() filteredPatients: any[] = [];
+  @State() filteredPatients: AppointmentsList[] = [];
   @State() selectedPatient: any = null;
-  waitingPatients: any[];
-  private async getWaitingPatientsAsync() {
-    return await Promise.resolve(
-      [{
-        name: 'Jožkoo Púčik',
-        Id: '1',
-        date: new Date("2024-04-01"),
-        estimatedStart: "11:00",
-        estimatedEnd: "11:20",
-        condition: 'Kontrola',
-        doctorNote: "",
-      }, {
-        name: 'Bc. August Cézar',
-        Id: '2',
-        date: new Date("2024-04-01"),
-        estimatedStart: "11:40",
-        estimatedEnd: "12:00",
-        condition: 'Teploty',
-        doctorNote: "",
-      }, {
-        name: 'Ing. Ferdinand Trety',
-        Id: '3',
-        date: new Date("2024-04-03"),
-        estimatedStart: "10:00",
-        estimatedEnd: "10:20",
-        condition: 'Bolesti hrdla',
-        doctorNote: "",
-      }]
-    );
+  @Prop() apiBase: string;
+  @Prop() ambulanceId: string;
+  @State() errorMessage: string;
+  waitingPatients: AppointmentsList[];
+  private async getAppointmentsListAsync() {
+    try {
+      const response = await
+        AppointmentsListApiFactory(undefined, this.apiBase).
+          getAppointmentsList()
+      if (response.status < 299) {
+        return response.data;
+      } else {
+        this.errorMessage = `Cannot retrieve list of appointments: ${response.statusText}`
+      }
+    } catch (err: any) {
+      this.errorMessage = `Cannot retrieve list of appointments: ${err.message || "unknown"}`
+    }
+    return [];
   }
   async componentWillLoad() {
-    this.waitingPatients = await this.getWaitingPatientsAsync();
-    this.filteredPatients = this.waitingPatients;
+    this.waitingPatients = await this.getAppointmentsListAsync();
+    this.waitingPatients = this.waitingPatients.filter(element => element.name !== "");
+    this.filteredPatients = this.waitingPatients
   }
   private formatDate(date: Date): string {
+    if (!date || isNaN(date.getTime())) {
+      return 'Invalid Date';
+    }
     return new Intl.DateTimeFormat('sk-SK', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
   }
   private handleSearch(event: Event) {
@@ -74,6 +68,7 @@ export class BoceWacProjectDoctorPatientsList {
     event.preventDefault();
     this.editingEntryIndex = index;
     this.selectedPatient = this.filteredPatients[index];
+    console.log(this.selectedPatient)
   }
 
   private handleCreatePatient(event: Event) {
@@ -94,25 +89,25 @@ export class BoceWacProjectDoctorPatientsList {
   render() {
     if (this.isLoggedOut) {
       return (
-        <boce-wac-project-login></boce-wac-project-login>
+        <boce-wac-project-login api-base={this.apiBase}></boce-wac-project-login>
       );
     }
 
     if (this.isCreatingPatient) {
       return (
-        <boce-wac-project-create-patient></boce-wac-project-create-patient>
+        <boce-wac-project-create-patient api-base={this.apiBase}></boce-wac-project-create-patient>
       );
     }
 
     if (this.isCreatingTerm) {
       return (
-        <boce-wac-project-create-term></boce-wac-project-create-term>
+        <boce-wac-project-create-term api-base={this.apiBase}></boce-wac-project-create-term>
       );
     }
 
     if (this.editingEntryIndex !== null) {
       return (
-        <boce-wac-project-appointment-data patient={this.selectedPatient}></boce-wac-project-appointment-data>
+        <boce-wac-project-appointment-data api-base={this.apiBase} patient={this.selectedPatient}></boce-wac-project-appointment-data>
       );
     }
 
@@ -139,6 +134,10 @@ export class BoceWacProjectDoctorPatientsList {
               <input type="date" id="Test_DatetimeLocal" value={this.searchDate} onInput={(event) => this.handleDateChange(event)} />
             </div>
           </div>
+          {this.errorMessage
+        ? <div class="error">{this.errorMessage}</div>
+        :(
+          <div>
           {this.filteredPatients.length > 0 ? (
             <md-list class="patient-list">
               {this.filteredPatients.map((patient, index) => (
@@ -163,6 +162,8 @@ export class BoceWacProjectDoctorPatientsList {
               </md-list-item>
             </md-list>
           )}
+        </div>  
+        )}  
           <div class="add-term">
             <md-elevated-button onClick={(event) => this.handleCreateTerm(event)}>Pridaj nový termín vyšetrenia</md-elevated-button>
           </div>

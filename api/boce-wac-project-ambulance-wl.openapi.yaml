@@ -1,0 +1,170 @@
+openapi: 3.0.0
+servers:
+  - description: Cluster Endpoint
+    url: /api
+info:
+  description: Patients portal for appointments management for Web-In-Cloud system
+  version: 1.0.0
+  title: Patients portal for appointments management API
+  contact:
+    email: <your_email>
+  license:
+    name: CC BY 4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+tags:
+  - name: patientsPortalAppointmentManagement
+    description: Patients portal for appointments management API
+paths:
+  '/appointment-list':
+    get:
+      tags:
+        - appointmentsList
+      summary: Provides list of all appointments
+      operationId: getAppointmentsList
+      description: Get all appointments
+      responses:
+        "200":
+          description: Value of the appointments list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AppointmentsList" 
+              example:
+                  - id: "1"
+                    name: Jožko Púčik
+                    date: "2024-04-01"
+                    estimatedStart: "14:20"
+                    estimatedEnd: "15:00"
+                    patientAppointed: true
+                    condition: Headache
+                    doctorNote: Example text
+                  - id: "2"
+                    name: Jožko Púčik
+                    date: "2024-06-30"
+                    estimatedStart: "11:00"
+                    estimatedEnd: "11:20"
+                    patientAppointed: true
+                    condition: Kontrola
+                    doctorNote: ""
+                  - id: "3"
+                    name: Bc. August Cézar
+                    date: "2024-04-01"
+                    estimatedStart: "11:40"
+                    estimatedEnd: "12:00"
+                    patientAppointed: true
+                    condition: Teploty
+                    doctorNote: ""
+                  - id: "4"
+                    name: ""
+                    date: "2024-07-03"
+                    estimatedStart: "10:00"
+                    estimatedEnd: "10:20"
+                    patientAppointed: false
+                    condition: ""
+                    doctorNote: ""       
+        "404":
+          description: No appointments found
+    post:
+      tags:
+        - appointmentsList
+      summary: Creates a new appointment
+      operationId: createAppointment
+      description: Create a new appointment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentsList'
+        description: Appointment to create
+        required: true
+      responses:
+        "201":
+          description: Appointment created successfully
+        "400":
+          description: Invalid input
+        "404":
+          description: Ambulance with such ID does not exist
+        "409":
+          description: Entry with the specified id already exists
+    delete:
+      tags:
+        - appointmentsList
+      summary: Deletes an appointment
+      operationId: deleteAppointment
+      description: Delete an appointment by ID
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: ID of the appointment to delete
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Appointment deleted successfully
+        "404":
+          description: Appointment not found
+    put:
+      tags:
+        - appointmentsList
+      summary: Updates an appointment
+      operationId: updateAppointment
+      description: Update an appointment
+      requestBody:
+        description: Updated appointment details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentsList'
+      responses:
+        "200":
+          description: Appointment updated successfully
+        "400":
+          description: Invalid input
+        "404":
+          description: Appointment not found
+components:
+  schemas:
+    AppointmentsList:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        date:
+          type: string
+          format: date
+        estimatedStart:
+          type: string
+          format: time
+        estimatedEnd:
+          type: string
+          format: time
+        patientAppointed:
+          type: boolean
+        condition:
+          type: string
+        doctorNote:
+          type: string
+      required:
+        - name
+        - date
+        - estimatedStart
+        - estimatedEnd
+        - patientAppointed
+        - condition
+        - doctorNote
+      example:
+        id: 1
+        name: Jožko Púčik
+        date: "2024-04-01"
+        estimatedStart: "14:20"
+        estimatedEnd: "15:00"
+        patientAppointed: true
+        condition: Headache
+        doctorNote: Example text

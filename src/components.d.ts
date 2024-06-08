@@ -7,22 +7,33 @@
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
     interface BoceWacProjectAppointmentData {
+        "apiBase": string;
         "patient": any;
     }
     interface BoceWacProjectCreatePatient {
+        "apiBase": string;
         "entryId": string;
     }
     interface BoceWacProjectCreateTerm {
+        "apiBase": string;
     }
     interface BoceWacProjectDoctorPatientsList {
+        "ambulanceId": string;
+        "apiBase": string;
     }
     interface BoceWacProjectLogin {
+        "apiBase": string;
     }
     interface BoceWacProjectMyAppointments {
+        "ambulanceId": string;
+        "apiBase": string;
     }
     interface BoceWacProjectPlannedAppointments {
+        "ambulanceId": string;
+        "apiBase": string;
     }
     interface BoceWacProjectReserveAppointment {
+        "apiBase": string;
     }
 }
 declare global {
@@ -87,22 +98,33 @@ declare global {
 }
 declare namespace LocalJSX {
     interface BoceWacProjectAppointmentData {
+        "apiBase"?: string;
         "patient"?: any;
     }
     interface BoceWacProjectCreatePatient {
+        "apiBase"?: string;
         "entryId"?: string;
     }
     interface BoceWacProjectCreateTerm {
+        "apiBase"?: string;
     }
     interface BoceWacProjectDoctorPatientsList {
+        "ambulanceId"?: string;
+        "apiBase"?: string;
     }
     interface BoceWacProjectLogin {
+        "apiBase"?: string;
     }
     interface BoceWacProjectMyAppointments {
+        "ambulanceId"?: string;
+        "apiBase"?: string;
     }
     interface BoceWacProjectPlannedAppointments {
+        "ambulanceId"?: string;
+        "apiBase"?: string;
     }
     interface BoceWacProjectReserveAppointment {
+        "apiBase"?: string;
     }
     interface IntrinsicElements {
         "boce-wac-project-appointment-data": BoceWacProjectAppointmentData;

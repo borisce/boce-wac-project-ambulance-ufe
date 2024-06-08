@@ -1,4 +1,5 @@
-import { Component, State, Host, h } from '@stencil/core';
+import { Component, State, Host, h, Prop } from '@stencil/core';
+import { AppointmentsListApiFactory, AppointmentsList} from '../../api/boce-wac-project-ambulance-wl';
 
 @Component({
   tag: 'boce-wac-project-planned-appointments',
@@ -10,39 +11,28 @@ export class BoceWacProjectPlannedAppointments {
   @State() isCancelled: boolean = false;
   @State() isBack: boolean = false;
   @State() searchQuery: string = '';
-  @State() filteredPatients: any[] = []; 
-  waitingPatients: any[];
-  private async getWaitingPatientsAsync() {
-    return await Promise.resolve(
-      [{
-        name: 'Jožko Púčik',
-        Id: '1',
-        date: new Date("2024-07-01"),
-        estimatedStart: "11:00",
-        estimatedEnd: "11:20",
-        condition: 'Kontrola',
-        doctorNote: "",
-      }, {
-        name: 'Jožko Púčik',
-        Id: '2',
-        date: new Date("2024-06-30"),
-        estimatedStart: "11:40",
-        estimatedEnd: "12:00",
-        condition: 'Teploty',
-        doctorNote: "",
-      }, {
-        name: 'Ing. Ferdinand Trety',
-        Id: '3',
-        date: new Date("2024-06-30"),
-        estimatedStart: "10:00",
-        estimatedEnd: "10:20",
-        condition: 'Bolesti hrdla',
-        doctorNote: "",
-      }]
-    );
+  @State() filteredPatients: AppointmentsList[] = [];
+  @Prop() apiBase: string;
+  @Prop() ambulanceId: string;
+  @State() errorMessage: string; 
+  waitingPatients: AppointmentsList[];
+  private async getAppointmentsListAsync() {
+    try {
+      const response = await
+        AppointmentsListApiFactory(undefined, this.apiBase).
+          getAppointmentsList()
+      if (response.status < 299) {
+        return response.data;
+      } else {
+        this.errorMessage = `Cannot retrieve list of planned appointments: ${response.statusText}`
+      }
+    } catch (err: any) {
+      this.errorMessage = `Cannot retrieve list of planned appointments: ${err.message || "unknown"}`
+    }
+    return [];
   }
   async componentWillLoad() {
-    this.waitingPatients = await this.getWaitingPatientsAsync();
+    this.waitingPatients = await this.getAppointmentsListAsync();
     this.filterPatients();
   }
   private handleSearch(event: Event) {
@@ -54,11 +44,10 @@ export class BoceWacProjectPlannedAppointments {
     return new Intl.DateTimeFormat('sk-SK', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
   }
   private filterPatients() {
-    const today = new Date(); // Get today's date
-    //const formattedToday = today.toISOString().slice(0, 10); // Format today's date
+    const today = new Date();
     this.filteredPatients = this.waitingPatients.filter(patient => {
       const matchesName = patient.name.toLowerCase().includes(this.searchQuery.toLowerCase());
-      const matchesDate = new Date(patient.date) >= today; // Check if the patient's date is today or from the future
+      const matchesDate = new Date(patient.date) > today;
       return matchesName && matchesDate;
     });
   }
@@ -68,9 +57,20 @@ export class BoceWacProjectPlannedAppointments {
     this.isLoggedOut = true;
   }
 
-  private handleCancel(event: Event) {
+  private async handleCancel(event: Event, patientId: string) {
     event.preventDefault();
-    this.isCancelled = true;
+    try {
+      const response = await AppointmentsListApiFactory(undefined, this.apiBase).deleteAppointment(patientId);
+      if (response.status < 299) {
+        this.waitingPatients = this.waitingPatients.filter(patient => patient.id !== patientId);
+        this.filterPatients();
+        this.isCancelled = true;
+      } else {
+        this.errorMessage = `Failed to cancel appointment: ${response.statusText}`;
+      }
+    } catch (error) {
+      this.errorMessage = `Error canceling appointment: ${error.message}`;
+    }
   }
 
   private handleBack(event: Event) {
@@ -82,19 +82,19 @@ export class BoceWacProjectPlannedAppointments {
   render() {
     if (this.isLoggedOut) {
       return (
-        <boce-wac-project-login></boce-wac-project-login>
+        <boce-wac-project-login api-base={this.apiBase}></boce-wac-project-login>
       );
     }
 
     if (this.isCancelled) {
       return (
-        <boce-wac-project-my-appointments></boce-wac-project-my-appointments>
+        <boce-wac-project-my-appointments api-base={this.apiBase}></boce-wac-project-my-appointments>
       );
     }
 
     if (this.isBack) {
       return (
-        <boce-wac-project-my-appointments></boce-wac-project-my-appointments>
+        <boce-wac-project-my-appointments api-base={this.apiBase}></boce-wac-project-my-appointments>
       );
     }
 
@@ -116,24 +116,29 @@ export class BoceWacProjectPlannedAppointments {
               />
             </div>
           </div>
-          <md-list class="patient-list">
-          {this.searchQuery.trim() === '' ? (
-              <p>Zadajte meno pacienta do vyhľadávacieho poľa.</p>
-            ) : this.filteredPatients.length > 0 ? (
-              this.filteredPatients.map(patient =>
-                <md-list-item>
-                  <div slot="headline">{patient.name}</div>
-                  <div slot="supporting-text">{"Termín vyšetrenia: " + this.formatDate(new Date(patient.date)) + " čas: " + patient.estimatedStart + " - " + patient.estimatedEnd}</div>
-                  <div slot='supporting-text'>{"Dôvod vyšetrenia: " + patient.condition}</div>
-                  <div slot="supporting-text">{"Záznam o vykonanom vyšetrení: " + patient.doctorNote}</div>
-                  <md-elevated-button slot="end" onClick={(event) => this.handleCancel(event)}>Zruš vyšetrenie</md-elevated-button>
-                  <md-icon slot="start">person</md-icon>
-                </md-list-item>
-              )
-            ) : (
-              <p>Nenašli sa žiadne plánované vyšetrenia pre zadané meno.</p>
-            )}
-          </md-list>
+          {this.errorMessage
+            ? <div class="error">{this.errorMessage}</div>
+            :(
+          <div>  
+            <md-list class="patient-list">
+            {this.searchQuery.trim() === '' ? (
+                <p>Zadajte meno pacienta do vyhľadávacieho poľa.</p>
+              ) : this.filteredPatients.length > 0 ? (
+                this.filteredPatients.map(patient =>
+                  <md-list-item>
+                    <div slot="headline">{patient.name}</div>
+                    <div slot="supporting-text">{"Termín vyšetrenia: " + this.formatDate(new Date(patient.date)) + " čas: " + patient.estimatedStart + " - " + patient.estimatedEnd}</div>
+                    <div slot='supporting-text'>{"Dôvod vyšetrenia: " + patient.condition}</div>
+                    <div slot="supporting-text">{"Záznam o vykonanom vyšetrení: " + patient.doctorNote}</div>
+                    <md-elevated-button slot="end" onClick={(event) => this.handleCancel(event, patient.id)}>Zruš vyšetrenie</md-elevated-button>
+                    <md-icon slot="start">person</md-icon>
+                  </md-list-item>
+                )
+              ) : (
+                <p>Nenašli sa žiadne plánované vyšetrenia pre zadané meno.</p>
+              )}
+            </md-list>
+          </div> )} 
           <div class="add-term">
             <md-elevated-button onClick={(event) => this.handleBack(event)}>Spät na históriu vyšetrení</md-elevated-button>
           </div>

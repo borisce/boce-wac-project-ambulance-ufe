@@ -1,4 +1,5 @@
-import { Component, State, Host, h } from '@stencil/core';
+import { Component, State, Host, h, Prop } from '@stencil/core';
+import { AppointmentsListApiFactory, AppointmentsList} from '../../api/boce-wac-project-ambulance-wl';
 
 @Component({
   tag: 'boce-wac-project-reserve-appointment',
@@ -11,41 +12,35 @@ export class BoceWacProjectReserveAppointment {
   @State() isClosed: boolean = false;
   @State() nameInput: string [] = [];
   @State() reasonInput: string [] = [];
-  @State() filteredPatients: any[] = [];
+  @State() filteredTerms: AppointmentsList[] = [];
   @State() searchDate: string = '';
-  waitingPatients: any[];
-  private async getWaitingPatientsAsync() {
-    return await Promise.resolve(
-        [{
-          name: '',
-          Id: '1',
-          date: new Date("2024-06-30"),
-          estimatedStart: "11:00",
-          estimatedEnd: "11:20",
-          condition: '',
-          doctorNote: "",
-        }, {
-          name: '',
-          Id: '2',
-          date: new Date("2024-07-01"),
-          estimatedStart: "11:40",
-          estimatedEnd: "12:00",
-          condition: '',
-          doctorNote: "",
-        }, {
-          name: '',
-          Id: '3',
-          date: new Date("2024-07-01"),
-          estimatedStart: "10:00",
-          estimatedEnd: "10:20",
-          condition: '',
-          doctorNote: "",
-        }]
-    );
+  @Prop() apiBase: string;
+  @State() errorMessage: string;
+  availableTerms: AppointmentsList[];
+  private async getAppointmentsListAsync() {
+    try {
+      const response = await
+        AppointmentsListApiFactory(undefined, this.apiBase).
+          getAppointmentsList()
+      if (response.status < 299) {
+        return response.data;
+      } else {
+        this.errorMessage = `Cannot retrieve list of of available appointment slots: ${response.statusText}`
+      }
+    } catch (err: any) {
+      this.errorMessage = `Cannot retrieve list of available appointment slots: ${err.message || "unknown"}`
+    }
+    return [];
   }
   async componentWillLoad() {
-    this.waitingPatients = await this.getWaitingPatientsAsync();
-    this.filteredPatients = this.waitingPatients;
+    this.availableTerms = await this.getAppointmentsListAsync();
+    this.filteredTerms = this.availableTerms;
+
+    const today = new Date().toISOString().split("T")[0];
+
+    this.filteredTerms = this.availableTerms.filter(appointment => {
+      return appointment.date > today && appointment.patientAppointed == false;
+    });
   }
   private formatDate(date: Date): string {
     return new Intl.DateTimeFormat('sk-SK', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
@@ -67,7 +62,7 @@ export class BoceWacProjectReserveAppointment {
     this.filterPatients();
   }
   private filterPatients() {
-    this.filteredPatients = this.waitingPatients.filter(patient => {
+    this.filteredTerms = this.availableTerms.filter(patient => {
       const matchesDate = this.searchDate ? this.formatDate(new Date(patient.date)) === this.formatDate(new Date(this.searchDate)) : true;
       return matchesDate;
     });
@@ -78,9 +73,31 @@ export class BoceWacProjectReserveAppointment {
     this.isLoggedOut = true;
   }
 
-  private handleReserve(event: Event) {
+  private async handleReserve(event: Event, index: number) {
     event.preventDefault();
-    this.isReserved = true;
+    const selectedTerm = this.filteredTerms[index];
+
+    const updatedTerm: AppointmentsList = {
+      id: selectedTerm.id,
+      name: this.nameInput[index],
+      date: selectedTerm.date,
+      estimatedStart: selectedTerm.estimatedStart,
+      estimatedEnd: selectedTerm.estimatedEnd,
+      condition: this.reasonInput[index],
+      doctorNote: selectedTerm.doctorNote,
+      patientAppointed: true,
+    };
+
+    try {
+      const response = await AppointmentsListApiFactory(undefined, this.apiBase).updateAppointment(updatedTerm);
+      if (response.status < 299) {
+        this.isReserved = true;
+      } else {
+        this.errorMessage = `Failed to reserve appointment: ${response.statusText}`;
+      }
+    } catch (error) {
+      this.errorMessage = `Error reserving appointment: ${error.message}`;
+    }
   }
 
   private handleClose(event: Event) {
@@ -88,22 +105,24 @@ export class BoceWacProjectReserveAppointment {
     this.isClosed = true;
   }
 
+  
+
   render() {
     if (this.isLoggedOut) {
       return (
-          <boce-wac-project-login></boce-wac-project-login>
+          <boce-wac-project-login api-base={this.apiBase}></boce-wac-project-login>
       );
     }
 
     if (this.isReserved) {
       return (
-          <boce-wac-project-my-appointments></boce-wac-project-my-appointments>
+          <boce-wac-project-my-appointments api-base={this.apiBase}></boce-wac-project-my-appointments>
       );
     }
 
     if (this.isClosed) {
       return (
-          <boce-wac-project-my-appointments></boce-wac-project-my-appointments>
+          <boce-wac-project-my-appointments api-base={this.apiBase}></boce-wac-project-my-appointments>
       );
     }
 
@@ -120,20 +139,25 @@ export class BoceWacProjectReserveAppointment {
               <input type="date" id="Test_DatetimeLocal" min={new Date().toISOString().split('T')[0]} value={this.searchDate} onInput={(event) => this.handleDateChange(event)} />
             </div>
           </div>
-          {this.filteredPatients.length === 0 ? (
-          <p>Žiadne voľné termíny vyšetrení pre zvolený dátum.</p>
-        ) : (
-          <md-list class="patient-list">
-            {this.filteredPatients.map((patient, index) =>
-              <md-list-item>
-                <div slot="supporting-text">{"Termín vyšetrenia:" + this.formatDate(new Date(patient.date)) + " čas: " + patient.estimatedStart + " - " + patient.estimatedEnd}</div>
-                <input slot='end' type="text" placeholder='Zadajte meno a priezvisko' onInput={(event) => this.handleNameInput(event, index)} />
-                <input slot='end' type="text" placeholder='Zadajte dôvod vyšetrenia' onInput={(event) => this.handleReasonInput(event, index)} />
-                <md-elevated-button slot="end" disabled={!this.nameInput[index] || !this.reasonInput[index]} onClick={(event) => this.handleReserve(event)}>Rezervuj vyšetrenie</md-elevated-button>
-              </md-list-item>
+          {this.errorMessage
+            ? <div class="error">{this.errorMessage}</div>
+            :(
+          <div>
+            {this.filteredTerms.length === 0 ? (
+            <p>Žiadne voľné termíny vyšetrení pre zvolený dátum.</p>
+            ) : (
+            <md-list class="patient-list">
+              {this.filteredTerms.map((patient, index) =>
+                <md-list-item>
+                  <div slot="supporting-text">{"Termín vyšetrenia:" + this.formatDate(new Date(patient.date)) + " čas: " + patient.estimatedStart + " - " + patient.estimatedEnd}</div>
+                  <input slot='end' type="text" placeholder='Zadajte meno a priezvisko' onInput={(event) => this.handleNameInput(event, index)} />
+                  <input slot='end' type="text" placeholder='Zadajte dôvod vyšetrenia' onInput={(event) => this.handleReasonInput(event, index)} />
+                  <md-elevated-button slot="end" disabled={!this.nameInput[index] || !this.reasonInput[index]} onClick={(event) => this.handleReserve(event, index)}>Rezervuj vyšetrenie</md-elevated-button>
+                </md-list-item>
+              )}
+            </md-list>
             )}
-          </md-list>
-        )}
+          </div> )}  
 
           <div class="back-flex">
             <md-elevated-button onClick={(event) => this.handleClose(event)}>Späť</md-elevated-button>
