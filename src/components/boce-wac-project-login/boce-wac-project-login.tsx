@@ -19,7 +19,6 @@ export class BoceWacProjectLogin {
   private handlePatientLogin(event: Event) {
     event.preventDefault();
     this.isPatientLogged = true;
-    //comment to trigger flux
   }
 
   render() {
