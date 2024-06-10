@@ -12,7 +12,7 @@ export class BoceWacProjectCreatePatient {
   @State() isCreateClosed: boolean = false;
   @State() isPatientCreated: boolean = false;
   @State() isLoggedOut: boolean = false;
-
+  @State() errorMessage: string = '';
   @State() name: string = '';
   @State() date: string = '';
   @State() estimatedStart: string = '';
@@ -42,6 +42,7 @@ export class BoceWacProjectCreatePatient {
 
   private async handleCreatePatient(event: Event) {
     event.preventDefault();
+    this.errorMessage = ''
     const newPatient : AppointmentsList = {
       name: this.name,
       date: this.date,
@@ -57,10 +58,12 @@ export class BoceWacProjectCreatePatient {
       if (response.status === 201) {
         this.isPatientCreated = true;
       } else {
-        console.error('Failed to create patient', response);
+        console.error('Failed to create patient appointment', response);
+        this.errorMessage = 'Failed to create patient appoitment.'
       }
     } catch (error) {
-      console.error('Error creating patient', error);
+      console.error('Error creating patient appointment', error);
+      this.errorMessage = 'Error cannot create patient appoitment.'
     }
   }
 
@@ -111,6 +114,7 @@ export class BoceWacProjectCreatePatient {
             </div>
           </div>  
         </form>
+        {this.errorMessage && <div class="error">{this.errorMessage}</div>}
       </Host>
     );  
   }

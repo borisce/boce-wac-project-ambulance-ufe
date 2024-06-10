@@ -14,6 +14,7 @@ export class BoceWacProjectAppointmentData {
   @State() isAppointmentChanged: boolean = false;
   @State() isSaveEnabled: boolean = false;
   @State() doctorNote: string;
+  @State() errorMessage: string = '';
   @Prop() apiBase: string;
 
   private handleLogout(event: Event) {
@@ -28,6 +29,7 @@ export class BoceWacProjectAppointmentData {
 
   private async handleSave(event: Event) {
     event.preventDefault();
+    this.errorMessage = ''
     try {
       const updatedPatient: AppointmentsList = {
         ...this.patient,
@@ -38,9 +40,11 @@ export class BoceWacProjectAppointmentData {
         this.isAppointmentChanged = true;
       } else {
         console.error('Failed to update appointment', response);
+        this.errorMessage = 'Error failed update appoitment.'
       }
     } catch (error) {
       console.error('Error updating appointment', error);
+      this.errorMessage = 'Error cannot update appoitment.'
     }
   }
 
@@ -91,13 +95,14 @@ export class BoceWacProjectAppointmentData {
             </div>
             <p><strong>Termín vyšetrenia:</strong> {this.formatDate(new Date(this.patient.date))} {this.patient.estimatedStart} - {this.patient.estimatedEnd}</p>
             <p><strong>Dôvod vyšetrenia:</strong> {this.patient.condition}</p>
-            <label htmlFor="appointment_data_textarea">Záznam lekára o vykonanom vyšetrení:</label>
+            <label htmlFor="appointment_data_textarea"><strong>Záznam lekára o vykonanom vyšetrení:</strong></label>
             <textarea name="appointment_data" id="appointment_data_textarea" value={this.doctorNote} onInput={(event) => this.handleTextareaChange(event)}></textarea>
           </div>
           <div class="buttons-flex">
             <md-elevated-button onClick={(event) => this.handleClose(event)}>Zrušiť</md-elevated-button>
             <md-elevated-button onClick={(event) => this.handleSave(event)} disabled={!this.isSaveEnabled}>Uložiť</md-elevated-button>
           </div>
+          {this.errorMessage && <div class="error">{this.errorMessage}</div>}
         </div>
       </Host>
     );

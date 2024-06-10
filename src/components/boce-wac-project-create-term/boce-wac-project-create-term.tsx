@@ -15,6 +15,7 @@ export class BoceWacProjectCreateTerm {
   @State() date: string = '';
   @State() estimatedStart: string = '';
   @State() estimatedEnd: string = '';
+  @State() errorMessage: string = '';
   @Prop() apiBase: string;
 
   private handleLogout(event: Event) {
@@ -29,6 +30,7 @@ export class BoceWacProjectCreateTerm {
 
   private async handleCreateTerm(event: Event) {
     event.preventDefault();
+    this.errorMessage = ''
     const newPatient : AppointmentsList = {
       name: "",
       date: this.date,
@@ -45,9 +47,11 @@ export class BoceWacProjectCreateTerm {
         this.isTermCreated = true
       } else {
         console.error('Failed to create term', response);
+        this.errorMessage = 'Error failed to create term.'
       }
     } catch (error) {
       console.error('Error creating term', error);
+      this.errorMessage = 'Error cannot create term.'
     }
   }
 
@@ -99,6 +103,7 @@ export class BoceWacProjectCreateTerm {
             </div>
           </div>
         </form>
+        {this.errorMessage && <div class="error">{this.errorMessage}</div>}
       </Host>
     );
   }

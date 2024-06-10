@@ -116,7 +116,6 @@ export class BoceWacProjectMyAppointments {
               <p class='headerinline'>Vyberte deň:</p>
               <input type="date" id="Test_DatetimeLocal" value={this.searchDate} max={new Date().toISOString().split("T")[0]} onInput={(event) => this.handleDateChange(event)} />
             </div>
-            <md-elevated-button onClick={(event) => this.handlePlannedClick(event)}>Zobraz plánované vyšetrenia</md-elevated-button>
           </div>
           {this.errorMessage
         ? <div class="error">{this.errorMessage}</div>
@@ -124,7 +123,7 @@ export class BoceWacProjectMyAppointments {
           <div>
           <md-list class="patient-list">
             {this.searchQuery.trim() === '' ? (
-              <p>Zadajte meno pacienta do vyhľadávacieho poľa.</p>
+              <p>Zadajte svoje meno do vyhľadávacieho poľa.</p>
             ) : 
             this.filteredPatients.length > 0 ? (
               this.filteredPatients.map(patient =>
@@ -142,6 +141,7 @@ export class BoceWacProjectMyAppointments {
           </md-list>
           </div>)} 
           <div class="add-term">
+            <md-elevated-button onClick={(event) => this.handlePlannedClick(event)}>Zobraz plánované vyšetrenia</md-elevated-button>
             <md-elevated-button onClick={(event) => this.handleAvailableClick(event)}>Objednanie sa na termín vyšetrenia</md-elevated-button>
           </div>
         </div>

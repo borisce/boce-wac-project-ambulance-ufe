@@ -122,7 +122,7 @@ export class BoceWacProjectPlannedAppointments {
           <div>  
             <md-list class="patient-list">
             {this.searchQuery.trim() === '' ? (
-                <p>Zadajte meno pacienta do vyhľadávacieho poľa.</p>
+                <p>Zadajte svoje meno do vyhľadávacieho poľa.</p>
               ) : this.filteredPatients.length > 0 ? (
                 this.filteredPatients.map(patient =>
                   <md-list-item>
